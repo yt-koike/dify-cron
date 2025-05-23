@@ -24,7 +24,7 @@ How to use:
 
 3. [Important] Start cron
 
-You need to copy the endpoint URL http://.../e/f3wv4z462ze8sm0n/cron/<command>, replace "<command>" to "status", then access to it.
+You need to copy the endpoint URL http://.../e/f3wv4z462ze8sm0n/cron/&lt;command&gt;, replace "&lt;command&gt;" to "status", then access to it.
 You will see this message on the page so click "Start?" link ONCE. Do not click it for multiple times. After clicking it once, please reload the page. If the message changed to "Cron status: active", Cron is now on.
 ![alt text](_assets/cron.png)
 
