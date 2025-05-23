@@ -14,6 +14,7 @@ class CronEndpoint(Endpoint):
         # This cron is mostly based on UNIX cron format: https://www.ibm.com/docs/en/db2-as-a-service?topic=task-unix-cron-format
         # Sunday = 0, Monday = 1, ... and lastly Saturday = 6
         # This cron also supports seconds.
+        cron_str = cron_str.strip()
         if len(cron_str.split(" ")) != 6:
             raise Exception("Invalid cron setting")
         seconds, minutes, hours, days, months, weekdays = cron_str.split(" ")
