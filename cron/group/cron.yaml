@@ -23,6 +23,6 @@ settings:
     label:
       en_US: Cron
     placeholder:
-      en_US: Please input cron setting. Every second if blank
+      en_US: Please input cron setting
 endpoints:
   - endpoints/cron.yaml
