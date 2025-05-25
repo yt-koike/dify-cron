@@ -3,7 +3,7 @@ from werkzeug import Request, Response
 from dify_plugin import Endpoint
 
 
-class CronEndpoint(Endpoint):
+class EntryEndpoint(Endpoint):
     def _invoke(self, r: Request, values: Mapping, settings: Mapping) -> Response:
         """
         Invokes the endpoint with the given request.
