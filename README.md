@@ -10,7 +10,7 @@ Cron can automatically trigger workflows at a certain time or frequency.
 This plugin does not support cloud version because it has a timeout limit and allows this plugin to work only for a few minutes.
 Please use this plugin for self-hosted servers only.
 
-## How to Use
+## How to Start and Stop Cron
 
 Here are the instructions how to use this Cron plugin.
 
@@ -35,6 +35,15 @@ You will see this message on the page so click "Start?" link ONCE. Do not click 
 ### 4. Stop Cron
 
 If you want to stop Cron, access to the page of the previous section and click "Stop?" link.
+
+## How to Use
+
+After you start Cron, it will automatically trigger workflows.
+
+If you want to know a certain query came from Cron or not, you can use an optional input variable "is_cron".
+If Cron made that query, is_cron is set to "yes", otherwise is_cron is empty.
+You can make a branch with an if block like the workflow below.
+![alt text](_assets/is_cron.png)
 
 ## Required APIs and Credentials 
 
