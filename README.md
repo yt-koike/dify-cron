@@ -57,7 +57,7 @@ Endpoint switch(below) will not start or stop Cron! Please switch on or off it v
 
 The order is "seconds minutes hours days months weekdays".
 At the moment, only wildcards and lists are supported.
-For example, "0,15,30,45 * * * * *" will trigger the workflow every thirty seconds; at XX:XX:00, XX:XX:15, XX:XX:30 and XX:XX:45 to be more specific.
+For example, "0,15,30,45 * * * * *" will trigger the workflow every fifteen seconds; at XX:XX:00, XX:XX:15, XX:XX:30 and XX:XX:45 to be more specific.
 
 ## Reference
 
