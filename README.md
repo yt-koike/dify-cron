@@ -19,9 +19,8 @@ Here are the instructions how to use this Cron plugin.
 
 ### 2. Add an endpoint
 
-- Endpoint Name: Custom name of this endpoint. You can input a custom name here.
-- Dify Endpoint: Please input the URL of Dify endpoint.
-- API key: Please input the API key for a certain workflow.
+- Endpoint Name: Name of this endpoint. You can input a custom name here.
+- App: Workflow or Chatflow to trigger regularly
 - Cron: When this plugin will trigger the workflow. Please see the Cron Format section to make a valid setting.
 
 ![alt text](_assets/endpoint.png)
