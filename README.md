@@ -31,6 +31,9 @@ You need to access the endpoint URL.
 You will see this message on the page so click "Start?" link ONCE. Do not click it for multiple times. After clicking it once, please reload the page. If the message changed to "Cron status: active", Cron is now turned on.
 ![alt text](_assets/cron.png)
 
+Caution: Endpoint switch(below) will not start or stop Cron! Please switch on or off it via endpoint URLs.
+![alt text](_assets/switch.png)
+
 ### 4. Stop Cron
 
 If you want to stop Cron, access to the page of the previous section and click "Stop?" link.
@@ -48,10 +51,9 @@ You can make a branch with an if block like the workflow below.
 
 None. Cron is a standalone plugin.
 
-## Caution
+## Connection requirements
 
-Endpoint switch(below) will not start or stop Cron! Please switch on or off it via endpoint URLs.
-![alt text](_assets/switch.png)
+Cron needs a connection without timeout. That's why it doesn't work on https://cloud.dify.ai .
 
 ## Cron Format
 
