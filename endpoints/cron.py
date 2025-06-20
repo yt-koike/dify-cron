@@ -15,36 +15,55 @@ START_HTML = (
     '<html><head></head><body>Cron started. Returning in 5 seconds... <meta http-equiv="refresh" content="5;URL=./status"></body></html>',
 )
 ALREADY_STARTED_HTML = '<html><head></head><body>Cron already started. Returning in 5 seconds... <meta http-equiv="refresh" content="5;URL=./status"></body></html>'
+ALREADY_STOPPED_HTML = (
+    '<html><head></head><body>Cron was not running. Returning in 5 seconds... '
+    '<meta http-equiv="refresh" content="5;URL=./status"></body></html>'
+)
+
+
+def _match(field: str, current: int, allow_step: bool = False) -> bool:
+    """Return True if the cron field matches the current value."""
+    if field == "*":
+        return True
+    if field.startswith("*/"):
+        if not allow_step:
+            raise Exception("Invalid cron setting")
+        try:
+            step = int(field[2:])
+        except ValueError as exc:
+            raise Exception("Invalid cron setting") from exc
+        if step <= 0:
+            raise Exception("Invalid cron setting")
+        return current % step == 0
+    try:
+        return current in map(int, field.split(","))
+    except ValueError as exc:
+        raise Exception("Invalid cron setting") from exc
 
 
 def is_now_to_call(cron_str):
     # Check if it is time to make a self call
     # This cron is mostly based on UNIX cron format: https://www.ibm.com/docs/en/db2-as-a-service?topic=task-unix-cron-format
     # Sunday = 0, Monday = 1, ... and lastly Saturday = 6
-    # This cron also supports seconds.
+    # This cron also supports seconds and step values (e.g. */5)
     cron_str = cron_str.strip()
     if len(cron_str.split(" ")) != 6:
         raise Exception("Invalid cron setting")
     seconds, minutes, hours, days, months, weekdays = cron_str.split(" ")
     now = datetime.datetime.now()
-    if seconds != "*":
-        if not now.second in map(int, seconds.split(",")):
-            return False
-    if minutes != "*":
-        if not now.minute in map(int, minutes.split(",")):
-            return False
-    if hours != "*":
-        if not now.hour in map(int, hours.split(",")):
-            return False
-    if days != "*":
-        if not now.day in map(int, days.split(",")):
-            return False
-    if months != "*":
-        if not now.month in map(int, months.split(",")):
-            return False
-    if weekdays != "*":
-        if not (now.weekday() + 1) % 7 in map(int, weekdays.split(",")):
-            return False
+
+    if not _match(seconds, now.second, allow_step=True):
+        return False
+    if not _match(minutes, now.minute, allow_step=True):
+        return False
+    if not _match(hours, now.hour, allow_step=True):
+        return False
+    if not _match(days, now.day):
+        return False
+    if not _match(months, now.month):
+        return False
+    if not _match(weekdays, (now.weekday() + 1) % 7):
+        return False
     return True
 
 
@@ -88,12 +107,19 @@ class CronEndpoint(Endpoint):
                 content_type="text/html",
             )
         elif command == "stop":
-            started_app_ids.remove(app_id)
-            return Response(
-                STOP_HTML,
-                status=200,
-                content_type="text/html",
-            )
+            if app_id in started_app_ids:
+                started_app_ids.discard(app_id)
+                return Response(
+                    STOP_HTML,
+                    status=200,
+                    content_type="text/html",
+                )
+            else:
+                return Response(
+                    ALREADY_STOPPED_HTML,
+                    status=200,
+                    content_type="text/html",
+                )
         elif command == "start":
             if app_id in started_app_ids:
                 return Response(
@@ -102,6 +128,9 @@ class CronEndpoint(Endpoint):
                     content_type="text/html",
                 )
             started_app_ids.add(app_id)
-            cron_loop(self.session, app_id, cron_str)
+            #print(f"Starting cron for app {app_id} with cron string {cron_str}")
+            res =  cron_loop(self.session, app_id, cron_str)
+            #print(f"Stop cron for app {app_id}")
+            return res
         else:
             return Response("Invalid Command")
