@@ -114,6 +114,8 @@ class CronEndpoint(Endpoint):
                 )
             started_app_ids.add(app_id)
             print(f"Starting cron for app {app_id} with cron string {cron_str}")
-            cron_loop(self.session, app_id, cron_str)
+            res =  cron_loop(self.session, app_id, cron_str)
+            print(f"Stop cron for app {app_id}")
+            return res
         else:
             return Response("Invalid Command")
