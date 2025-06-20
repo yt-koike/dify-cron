@@ -63,6 +63,8 @@ seconds, minutes and hours fields only.
 For example, `0,15,30,45 * * * * *` will trigger the workflow every fifteen seconds.
 `0 */5 * * * *` runs every five minutes.
 
+Note: to apply changes to the Cron string, you must disable the service and then re-enable it.
+
 ## Reference
 
 - Repository: https://github.com/yt-koike/dify-cron
