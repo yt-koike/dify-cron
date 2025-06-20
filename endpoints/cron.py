@@ -15,6 +15,10 @@ START_HTML = (
     '<html><head></head><body>Cron started. Returning in 5 seconds... <meta http-equiv="refresh" content="5;URL=./status"></body></html>',
 )
 ALREADY_STARTED_HTML = '<html><head></head><body>Cron already started. Returning in 5 seconds... <meta http-equiv="refresh" content="5;URL=./status"></body></html>'
+ALREADY_STOPPED_HTML = (
+    '<html><head></head><body>Cron was not running. Returning in 5 seconds... '
+    '<meta http-equiv="refresh" content="5;URL=./status"></body></html>'
+)
 
 
 def is_now_to_call(cron_str):
@@ -88,12 +92,19 @@ class CronEndpoint(Endpoint):
                 content_type="text/html",
             )
         elif command == "stop":
-            started_app_ids.remove(app_id)
-            return Response(
-                STOP_HTML,
-                status=200,
-                content_type="text/html",
-            )
+            if app_id in started_app_ids:
+                started_app_ids.discard(app_id)
+                return Response(
+                    STOP_HTML,
+                    status=200,
+                    content_type="text/html",
+                )
+            else:
+                return Response(
+                    ALREADY_STOPPED_HTML,
+                    status=200,
+                    content_type="text/html",
+                )
         elif command == "start":
             if app_id in started_app_ids:
                 return Response(
