@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.2
 type: plugin
 author: yt-koike
 name: cron
@@ -24,7 +24,7 @@ plugins:
   endpoints:
     - group/cron.yaml
 meta:
-  version: 0.0.1
+  version: 0.0.2
   arch:
     - amd64
     - arm64

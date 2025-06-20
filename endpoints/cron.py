@@ -64,7 +64,6 @@ def is_now_to_call(cron_str):
         return False
     if not _match(weekdays, (now.weekday() + 1) % 7):
         return False
-
     return True
 
 
@@ -129,9 +128,9 @@ class CronEndpoint(Endpoint):
                     content_type="text/html",
                 )
             started_app_ids.add(app_id)
-            print(f"Starting cron for app {app_id} with cron string {cron_str}")
+            #print(f"Starting cron for app {app_id} with cron string {cron_str}")
             res =  cron_loop(self.session, app_id, cron_str)
-            print(f"Stop cron for app {app_id}")
+            #print(f"Stop cron for app {app_id}")
             return res
         else:
             return Response("Invalid Command")
