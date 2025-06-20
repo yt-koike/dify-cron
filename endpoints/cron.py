@@ -21,15 +21,19 @@ ALREADY_STOPPED_HTML = (
 )
 
 
-def _match(field: str, current: int) -> bool:
+def _match(field: str, current: int, allow_step: bool = False) -> bool:
     """Return True if the cron field matches the current value."""
     if field == "*":
         return True
     if field.startswith("*/"):
+        if not allow_step:
+            raise Exception("Invalid cron setting")
         try:
             step = int(field[2:])
         except ValueError as exc:
             raise Exception("Invalid cron setting") from exc
+        if step <= 0:
+            raise Exception("Invalid cron setting")
         return current % step == 0
     try:
         return current in map(int, field.split(","))
@@ -48,11 +52,11 @@ def is_now_to_call(cron_str):
     seconds, minutes, hours, days, months, weekdays = cron_str.split(" ")
     now = datetime.datetime.now()
 
-    if not _match(seconds, now.second):
+    if not _match(seconds, now.second, allow_step=True):
         return False
-    if not _match(minutes, now.minute):
+    if not _match(minutes, now.minute, allow_step=True):
         return False
-    if not _match(hours, now.hour):
+    if not _match(hours, now.hour, allow_step=True):
         return False
     if not _match(days, now.day):
         return False

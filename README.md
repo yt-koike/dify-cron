@@ -58,7 +58,8 @@ Cron needs a connection without timeout. That's why it doesn't work on https://c
 ## Cron Format
 
 The order is "seconds minutes hours days months weekdays".
-Wildcards, lists, and step values like `*/5` are supported.
+Wildcards and lists are supported. Step values like `*/5` are allowed for the
+seconds, minutes and hours fields only.
 For example, `0,15,30,45 * * * * *` will trigger the workflow every fifteen seconds.
 `0 */5 * * * *` runs every five minutes.
 
