@@ -21,34 +21,46 @@ ALREADY_STOPPED_HTML = (
 )
 
 
+def _match(field: str, current: int) -> bool:
+    """Return True if the cron field matches the current value."""
+    if field == "*":
+        return True
+    if field.startswith("*/"):
+        try:
+            step = int(field[2:])
+        except ValueError as exc:
+            raise Exception("Invalid cron setting") from exc
+        return current % step == 0
+    try:
+        return current in map(int, field.split(","))
+    except ValueError as exc:
+        raise Exception("Invalid cron setting") from exc
+
+
 def is_now_to_call(cron_str):
     # Check if it is time to make a self call
     # This cron is mostly based on UNIX cron format: https://www.ibm.com/docs/en/db2-as-a-service?topic=task-unix-cron-format
     # Sunday = 0, Monday = 1, ... and lastly Saturday = 6
-    # This cron also supports seconds.
+    # This cron also supports seconds and step values (e.g. */5)
     cron_str = cron_str.strip()
     if len(cron_str.split(" ")) != 6:
         raise Exception("Invalid cron setting")
     seconds, minutes, hours, days, months, weekdays = cron_str.split(" ")
     now = datetime.datetime.now()
-    if seconds != "*":
-        if not now.second in map(int, seconds.split(",")):
-            return False
-    if minutes != "*":
-        if not now.minute in map(int, minutes.split(",")):
-            return False
-    if hours != "*":
-        if not now.hour in map(int, hours.split(",")):
-            return False
-    if days != "*":
-        if not now.day in map(int, days.split(",")):
-            return False
-    if months != "*":
-        if not now.month in map(int, months.split(",")):
-            return False
-    if weekdays != "*":
-        if not (now.weekday() + 1) % 7 in map(int, weekdays.split(",")):
-            return False
+
+    if not _match(seconds, now.second):
+        return False
+    if not _match(minutes, now.minute):
+        return False
+    if not _match(hours, now.hour):
+        return False
+    if not _match(days, now.day):
+        return False
+    if not _match(months, now.month):
+        return False
+    if not _match(weekdays, (now.weekday() + 1) % 7):
+        return False
+
     return True
 
 
