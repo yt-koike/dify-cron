@@ -1,7 +1,7 @@
 # Cron
 
 **Author:** yt-koike
-**Version:** 0.0.1
+**Version:** 0.0.2
 **Type:** extension
 
 ## Description
