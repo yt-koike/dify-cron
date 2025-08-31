@@ -311,7 +311,7 @@ class CronEndpoint(Endpoint):
                 content_type="text/html",
             )
         elif command == "status":
-            if app_id in api.get_job_ids():
+            if run_once_url in api.get_job_urls():
                 html = STATUS_ACTIVE_HTML
             else:
                 html = STATUS_INACTIVE_HTML
