@@ -24,6 +24,12 @@ settings:
     required: false
     label:
       en_US: Is this cloud version?
+  - name: cron_job_org_key
+    type: text-input
+    required: false
+    label:
+      en_US: API key for cron-job.org
+
 endpoints:
   - endpoints/entry.yaml
   - endpoints/cron.yaml

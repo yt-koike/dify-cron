@@ -1,11 +1,12 @@
 import datetime
+import json
 import time
 from collections.abc import Mapping
 
+import requests
 from dify_plugin import Endpoint
 from dify_plugin.core.runtime import Session
 from werkzeug import Request, Response
-
 
 running_app_ids = set()
 
@@ -83,6 +84,10 @@ def is_now_to_call(cron_str):
     return True
 
 
+def run_once(session: Session, app_id: str):
+    session.app.chat.invoke(app_id, "!cron!", {"is_cron": "yes"}, "blocking", "")
+
+
 def cron_loop(session: Session, cron_man: CronManager, app_id, cron_str: str) -> None:
     is_triggered = False
     while True:
@@ -91,10 +96,84 @@ def cron_loop(session: Session, cron_man: CronManager, app_id, cron_str: str) ->
         time.sleep(0.1)
         if is_now_to_call(cron_str):
             if not is_triggered:
-                session.app.chat.invoke(app_id, "!cron!", {"is_cron": "yes"}, "blocking", "")
+                run_once(session, app_id)
                 is_triggered = True
         else:
             is_triggered = False
+
+
+class CronJobAPI:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+
+    def get_jobs(self) -> list[dict]:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+        result = requests.get(
+            "https://api.cron-job.org/jobs",
+            headers=headers,
+        )
+        return result.json()["jobs"]
+
+    def get_job_ids(self) -> list[int]:
+        jobs = self.get_jobs()
+        return [job["jobId"] for job in jobs]
+
+    def get_job_urls(self) -> list[str]:
+        jobs = self.get_jobs()
+        return [job["url"] for job in jobs]
+
+    def register_job(self, job: dict):
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+        result = requests.put("https://api.cron-job.org/jobs", headers=headers, data=json.dumps(job))
+        return result.json()["jobId"]
+
+    def delete_job(self, job_id: int) -> None:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+        result = requests.delete(f"https://api.cron-job.org/jobs/{job_id}", headers=headers)
+
+    def delete_job_by_url(self, url: str) -> None:
+        for job in self.get_jobs():
+            if job["url"] == url:
+                self.delete_job(job["jobId"])
+
+    def register_dify_job(
+        self,
+        url: str,
+        timezone: str = "UTC",
+        hours: list[int] = [-1],
+        minutes: list[int] = [-1],
+        mdays: list[int] = [-1],
+        months: list[int] = [-1],
+        wdays: list[int] = [-1],
+    ):
+        # Reference: https://docs.cron-job.org/rest-api.html
+        job = {
+            "job": {
+                "url": url,
+                "enabled": True,
+                "saveResponses": True,
+                "schedule": {
+                    "timezone": timezone,
+                    "expiresAt": 0,
+                    "hours": hours,
+                    "minutes": minutes,
+                    "mdays": mdays,
+                    "months": months,
+                    "wdays": wdays,
+                },
+                "requestMethod": 0,  # GET
+            }
+        }
+        return self.register_job(job)
 
 
 class CronEndpoint(Endpoint):
@@ -104,7 +183,14 @@ class CronEndpoint(Endpoint):
         """
         command = values["command"]
         app_id = settings.get("app")["app_id"]
-        print(settings.get("app"))
+        if settings.get("is_cloud"):
+            return self.run_cloud(r, values, settings)
+        else:
+            return self.run_local(r, values, settings)
+
+    def run_local(self, r: Request, values: Mapping, settings: Mapping) -> Request:
+        command = values["command"]
+        app_id = settings.get("app")["app_id"]
         cron_str = settings.get("cron_str")
         cron_man = CronManager()
         try:
@@ -141,7 +227,59 @@ class CronEndpoint(Endpoint):
                 )
             cron_man.start(app_id)
             # print(f"Starting cron for app {app_id} with cron string {cron_str}")
-            cron_loop(self.session, app_id, cron_str)
+            cron_loop(self.session, cron_man, app_id, cron_str)
             # print(f"Stop cron for app {app_id}")
         else:
             return Response("Invalid Command")
+
+    def run_cloud(self, r: Request, values: Mapping, settings: Mapping):
+        if "cron_job_org_key" not in settings:
+            raise Exception("Please input cron_job_org_key")
+        cron_job = CronJobAPI(settings["cron_job_org_key"])
+        command = values["command"]
+        app_id = settings.get("app")["app_id"]
+
+        run_once_url = "/".join(r.base_url.split("/")[:-1]) + "/runOnce"
+        if command == "start":
+            if run_once_url in cron_job.get_job_urls():
+                return Response(
+                    ALREADY_STARTED_HTML,
+                    status=200,
+                    content_type="text/html",
+                )
+            cron_job.register_dify_job(run_once_url)
+            return Response(
+                START_HTML,
+                status=200,
+                content_type="text/html",
+            )
+        elif command == "stop":
+            if run_once_url not in cron_job.get_job_urls():
+                return Response(
+                    ALREADY_STOPPED_HTML,
+                    status=200,
+                    content_type="text/html",
+                )
+            cron_job.delete_job_by_url(run_once_url)
+            return Response(
+                START_HTML,
+                status=200,
+                content_type="text/html",
+            )
+        elif command == "status":
+            if run_once_url in cron_job.get_job_urls():
+                html = STATUS_ACTIVE_HTML
+            else:
+                html = STATUS_INACTIVE_HTML
+            return Response(
+                html,
+                status=200,
+                content_type="text/html",
+            )
+        elif command == "runOnce":
+            run_once(self.session, app_id)
+            return Response(
+                "OK",
+                status=200,
+                content_type="text/html",
+            )
