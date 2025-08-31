@@ -6,7 +6,23 @@ from dify_plugin import Endpoint
 from dify_plugin.core.runtime import Session
 from werkzeug import Request, Response
 
-started_app_ids = set()
+
+running_app_ids = set()
+
+
+class CronManager:
+    def start(self, app_id) -> None:
+        global running_app_ids
+        running_app_ids.add(app_id)
+
+    def stop(self, app_id) -> None:
+        global running_app_ids
+        running_app_ids.remove(app_id)
+
+    def is_running(self, app_id) -> bool:
+        global running_app_ids
+        return app_id in running_app_ids
+
 
 STATUS_ACTIVE_HTML = "<html><head></head><body>Cron status: active <br><a href='./stop'>Stop?</a></body></html>"
 STATUS_INACTIVE_HTML = "<html><head></head><body>Cron status: inactive <br><a href='./start'>Start?</a></body></html>"
@@ -67,11 +83,11 @@ def is_now_to_call(cron_str):
     return True
 
 
-def cron_loop(session: Session, app_id, cron_str):
+def cron_loop(session: Session, cron_man: CronManager, app_id, cron_str: str) -> None:
     is_triggered = False
     while True:
-        if not app_id in started_app_ids:
-            return Response("Cron Stopped")
+        if not cron_man.is_running(app_id):
+            break
         time.sleep(0.1)
         if is_now_to_call(cron_str):
             if not is_triggered:
@@ -88,7 +104,9 @@ class CronEndpoint(Endpoint):
         """
         command = values["command"]
         app_id = settings.get("app")["app_id"]
+        print(settings.get("app"))
         cron_str = settings.get("cron_str")
+        cron_man = CronManager()
         try:
             is_now_to_call(cron_str)
         except:
@@ -96,13 +114,13 @@ class CronEndpoint(Endpoint):
 
         if len(command) == 0 or command == "status":
             return Response(
-                (STATUS_ACTIVE_HTML if app_id in started_app_ids else STATUS_INACTIVE_HTML),
+                (STATUS_ACTIVE_HTML if cron_man.is_running(app_id) else STATUS_INACTIVE_HTML),
                 status=200,
                 content_type="text/html",
             )
         elif command == "stop":
-            if app_id in started_app_ids:
-                started_app_ids.discard(app_id)
+            if cron_man.is_running(app_id):
+                cron_man.stop(app_id)
                 return Response(
                     STOP_HTML,
                     status=200,
@@ -115,16 +133,15 @@ class CronEndpoint(Endpoint):
                     content_type="text/html",
                 )
         elif command == "start":
-            if app_id in started_app_ids:
+            if cron_man.is_running(app_id):
                 return Response(
                     ALREADY_STARTED_HTML,
                     status=200,
                     content_type="text/html",
                 )
-            started_app_ids.add(app_id)
+            cron_man.start(app_id)
             # print(f"Starting cron for app {app_id} with cron string {cron_str}")
-            res = cron_loop(self.session, app_id, cron_str)
+            cron_loop(self.session, app_id, cron_str)
             # print(f"Stop cron for app {app_id}")
-            return res
         else:
             return Response("Invalid Command")
