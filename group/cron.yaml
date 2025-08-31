@@ -19,6 +19,12 @@ settings:
       en_US: Cron
     placeholder:
       en_US: Please input cron setting
+  - name: is_active
+    type: boolean
+    required: false
+    default: true
+    label:
+      en_US: Do you set it active or not?
   - name: is_cloud
     type: boolean
     required: false
@@ -26,4 +32,3 @@ settings:
       en_US: Is this cloud version?
 endpoints:
   - endpoints/entry.yaml
-  - endpoints/cron.yaml

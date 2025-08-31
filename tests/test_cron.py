@@ -4,7 +4,7 @@ import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
-from endpoints.cron import is_now_to_call
+from endpoints.common import is_now_to_call
 
 
 def test_step_allowed_seconds_minutes_hours():
