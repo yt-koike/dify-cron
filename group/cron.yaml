@@ -19,6 +19,14 @@ settings:
       en_US: Cron
     placeholder:
       en_US: Please input cron setting
+  - name: timezone
+    type: text-input
+    required: true
+    label:
+      en_US: Time Zone
+    default: UTC
+    placeholder:
+      en_US: Please input the desired time zone
   - name: is_cloud
     type: boolean
     required: false
