@@ -1,20 +1,22 @@
 # Cron
 
 **Author:** yt-koike
-**Version:** 0.0.2
+**Version:** 0.1.0
 **Type:** extension
 
 ## Description
 
 Cron can automatically trigger workflows at a certain time or frequency.
-This plugin does not support cloud version because it has a timeout limit and allows this plugin to work only for a few minutes.
-Please use this plugin for self-hosted servers only.
+This plugin also works on https://cloud.dify.ai/ with a help of https://cron-job.org
+
+If you want to use this plugin on the cloud, please get an API Key on https://cron-job.org in advance. Reference: https://blog.cron-job.org/service/news/2021/12/23/cron-job-org-api.html
 
 ## How to Start and Stop Cron
 
 Here are the instructions how to use this Cron plugin.
 
 ### 1. Install Cron
+
 ![alt text](_assets/installed.png)
 
 ### 2. Add an endpoint
@@ -47,13 +49,15 @@ If Cron made that query, is_cron is set to "yes", otherwise is_cron is empty.
 You can make a branch with an if block like the workflow below.
 ![alt text](_assets/is_cron.png)
 
-## Required APIs and Credentials 
+## Required APIs and Credentials
 
-None. Cron is a standalone plugin.
+If you use this plugin for self-hosted servers, you don't need any.
+If you use this plugin for https://cloud.dify.ai, you need an access to https://cron-job.org.
 
 ## Connection requirements
 
-Cron needs a connection without timeout. That's why it doesn't work on https://cloud.dify.ai .
+For self-hosted servers, this plugin works standalonely.
+For https://cloud.dify.ai, this plugin needs to connect https://cron-job.org .
 
 ## Cron Format
 
@@ -64,6 +68,7 @@ For example, `0,15,30,45 * * * * *` will trigger the workflow every fifteen seco
 `0 */5 * * * *` runs every five minutes.
 
 Note: to apply changes to the Cron string, you must disable the service and then re-enable it.
+Caution: Cloud version does NOT support "seconds" and the first argument will be ignored.
 
 ## Reference
 

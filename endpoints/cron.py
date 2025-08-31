@@ -234,7 +234,7 @@ class CronEndpoint(Endpoint):
 
     def run_cloud(self, r: Request, values: Mapping, settings: Mapping):
         if "cron_job_org_key" not in settings:
-            raise Exception("Please input cron_job_org_key")
+            raise Exception("Please input an API Key from https://cron-job.org")
         cron_job = CronJobAPI(settings["cron_job_org_key"])
         command = values["command"]
         app_id = settings.get("app")["app_id"]
