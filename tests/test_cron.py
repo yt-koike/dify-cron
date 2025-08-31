@@ -14,11 +14,14 @@ def test_step_allowed_seconds_minutes_hours():
         pytest.fail(f"Unexpected error: {exc}")
 
 
-@pytest.mark.parametrize("cron", [
-    "* * * */5 * *",
-    "* * * * */5 *",
-    "* * * * * */5",
-])
+@pytest.mark.parametrize(
+    "cron",
+    [
+        "* * * */5 * *",
+        "* * * * */5 *",
+        "* * * * * */5",
+    ],
+)
 def test_step_not_allowed_on_day_month_weekday(cron):
     with pytest.raises(Exception):
         is_now_to_call(cron)

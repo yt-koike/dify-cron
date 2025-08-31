@@ -1,10 +1,10 @@
-import time
-from typing import Mapping
-from werkzeug import Request, Response
-from dify_plugin import Endpoint
 import datetime
+import time
+from collections.abc import Mapping
 
+from dify_plugin import Endpoint
 from dify_plugin.core.runtime import Session
+from werkzeug import Request, Response
 
 started_app_ids = set()
 
@@ -16,7 +16,7 @@ START_HTML = (
 )
 ALREADY_STARTED_HTML = '<html><head></head><body>Cron already started. Returning in 5 seconds... <meta http-equiv="refresh" content="5;URL=./status"></body></html>'
 ALREADY_STOPPED_HTML = (
-    '<html><head></head><body>Cron was not running. Returning in 5 seconds... '
+    "<html><head></head><body>Cron was not running. Returning in 5 seconds... "
     '<meta http-equiv="refresh" content="5;URL=./status"></body></html>'
 )
 
@@ -75,9 +75,7 @@ def cron_loop(session: Session, app_id, cron_str):
         time.sleep(0.1)
         if is_now_to_call(cron_str):
             if not is_triggered:
-                session.app.chat.invoke(
-                    app_id, "!cron!", {"is_cron": "yes"}, "blocking", ""
-                )
+                session.app.chat.invoke(app_id, "!cron!", {"is_cron": "yes"}, "blocking", "")
                 is_triggered = True
         else:
             is_triggered = False
@@ -98,11 +96,7 @@ class CronEndpoint(Endpoint):
 
         if len(command) == 0 or command == "status":
             return Response(
-                (
-                    STATUS_ACTIVE_HTML
-                    if app_id in started_app_ids
-                    else STATUS_INACTIVE_HTML
-                ),
+                (STATUS_ACTIVE_HTML if app_id in started_app_ids else STATUS_INACTIVE_HTML),
                 status=200,
                 content_type="text/html",
             )
@@ -128,9 +122,9 @@ class CronEndpoint(Endpoint):
                     content_type="text/html",
                 )
             started_app_ids.add(app_id)
-            #print(f"Starting cron for app {app_id} with cron string {cron_str}")
-            res =  cron_loop(self.session, app_id, cron_str)
-            #print(f"Stop cron for app {app_id}")
+            # print(f"Starting cron for app {app_id} with cron string {cron_str}")
+            res = cron_loop(self.session, app_id, cron_str)
+            # print(f"Stop cron for app {app_id}")
             return res
         else:
             return Response("Invalid Command")
