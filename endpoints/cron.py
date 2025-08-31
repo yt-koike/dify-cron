@@ -278,42 +278,55 @@ class CronEndpoint(Endpoint):
     def run_cloud(self, r: Request, values: Mapping, settings: Mapping):
         if "cron_job_org_key" not in settings:
             raise Exception("Please input an API Key from https://cron-job.org")
-        cron_job = CronJobAPI(settings["cron_job_org_key"])
+        api = CronJobAPI(settings["cron_job_org_key"])
         command = values["command"]
         app_id = settings.get("app")["app_id"]
+        cron = Cron(settings.get("cron_str"), timezone=settings.get("timezone", "UTC"))
 
         run_once_url = "/".join(r.base_url.split("/")[:-1]) + "/runOnce"
         if command == "start":
-            if run_once_url in cron_job.get_job_urls():
+            if run_once_url in api.get_job_urls():
                 return Response(
                     ALREADY_STARTED_HTML,
                     status=200,
                     content_type="text/html",
                 )
-            cron_job.register_dify_job(run_once_url)
+            api.register_dify_job(run_once_url, cron)
             return Response(
                 START_HTML,
                 status=200,
                 content_type="text/html",
             )
         elif command == "stop":
-            if run_once_url not in cron_job.get_job_urls():
+            if run_once_url not in api.get_job_urls():
                 return Response(
                     ALREADY_STOPPED_HTML,
                     status=200,
                     content_type="text/html",
                 )
-            cron_job.delete_job_by_url(run_once_url)
+            api.delete_job_by_url(run_once_url)
             return Response(
                 START_HTML,
                 status=200,
                 content_type="text/html",
             )
         elif command == "status":
-            if run_once_url in cron_job.get_job_urls():
+            if app_id in api.get_job_ids():
                 html = STATUS_ACTIVE_HTML
             else:
                 html = STATUS_INACTIVE_HTML
+            html = html.replace("{app-id}", app_id)
+            html = html.replace("{now_utc}", datetime.datetime.now(tz=ZoneInfo("UTC")).strftime("%Y/%m/%d, %H:%M:%S"))
+            html = html.replace(
+                "{now}", datetime.datetime.now(tz=ZoneInfo(cron.timezone)).strftime("%Y/%m/%d, %H:%M:%S")
+            )
+            html = html.replace("{timezone}", cron.timezone)
+            html = html.replace("{s}", str(cron.schedule["seconds"]))
+            html = html.replace("{m}", str(cron.schedule["minutes"]))
+            html = html.replace("{h}", str(cron.schedule["hours"]))
+            html = html.replace("{d}", str(cron.schedule["mdays"]))
+            html = html.replace("{months}", str(cron.schedule["months"]))
+            html = html.replace("{w}", str(cron.schedule["wdays"]))
             return Response(
                 html,
                 status=200,
