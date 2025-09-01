@@ -54,13 +54,17 @@ You can make a branch with an if block like the workflow below.
 
 ## Required APIs and Credentials
 
-If you use this plugin for self-hosted servers, you don't need any.
-If you use this plugin for https://cloud.dify.ai, you need an access to https://cron-job.org.
+For self-hosted servers, no external APIs or credentials are required.
+
+For cloud.dify.ai, access to https://cron-job.org/ is required.
+For further details regarding this access, please refer to [PRIVACY.md](https://github.com/yt-koike/dify-cron/blob/main/PRIVACY.md).
 
 ## Connection requirements
 
-For self-hosted servers, this plugin works standalonely.
-For https://cloud.dify.ai, this plugin needs to connect https://cron-job.org .
+On self-hosted servers, this plugin operates independently without external connections.
+
+On cloud.dify.ai, this plugin must establish a connection to https://cron-job.org .
+Additional information on this requirement is available in [PRIVACY.md](https://github.com/yt-koike/dify-cron/blob/main/PRIVACY.md).
 
 ## Cron Format
 
