@@ -218,7 +218,7 @@ class CronEndpoint(Endpoint):
     def run_local(self, r: Request, values: Mapping, settings: Mapping) -> Request:
         command = values["command"]
         app_id = settings.get("app")["app_id"]
-        cron = Cron(settings.get("cron_str"), timezone=settings.get("timezone", "UTC"))
+        cron = Cron(settings.get("cron_str"), timezone=settings.get("timezone", time.tzname[0]))
         job_man = JobManager()
         try:
             cron.is_now_to_call()
