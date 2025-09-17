@@ -1,0 +1,3 @@
+I, yt-koike, the creator of this repository, hereby clarify the policy regarding its ownership to keep it actively maintained.
+If six months have passed since I ceased responding to any issues or pull requests, ownership of the repository shall be transferred to https://github.com/langgenius/dify-official-plugins
+If Langgenius explicitly declines to accept the ownership, or fails to respond to the transfer within an additional six months, ownership shall be transferred to the developer who has submitted the greatest number of pull requests. In the event of a tie, the concerned developers are requested to confer among themselves and determine the recipient of ownership.
