@@ -208,9 +208,7 @@ class CronEndpoint(Endpoint):
         """
         Invokes the endpoint with the given request.
         """
-        command = values["command"]
-        app_id = settings.get("app")["app_id"]
-        if settings.get("is_cloud"):
+        if settings.get("server_type") == "cloud":
             return self.run_cloud(r, values, settings)
         else:
             return self.run_local(r, values, settings)

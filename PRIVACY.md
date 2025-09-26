@@ -1,9 +1,9 @@
 ## Privacy
 
-For self-hosted servers (i.e., when the "Is this cloud version?" switch is set to False),
+For self-hosted servers (i.e. when Server Type is set to "Self Hosted"),
 Cron does not use any external APIs or collect any personal data.
 
-For cloud.dify.ai (i.e., when the "Is this cloud version?" switch is set to True), 
+For cloud.dify.ai (i.e. when Server Type is set to "Cloud"),
 Cron relies on the cron-job.org API to regularly invoke the designated Dify cloud endpoint.
 
 When registering a cron job with cron-job.org, Cron transmits the following information to https://api.cron-job.org/jobs:
@@ -15,5 +15,6 @@ When registering a cron job with cron-job.org, Cron transmits the following info
 After successful registration, cron-job.org returns a cron job identifier, which Cron retains until the user cancels the job.
 
 For details on third-party privacy and data retention policies, please refer to:
+
 - [cron-job.org Terms of Service](https://cron-job.org/en/tos/)
 - [cron-job.org Privacy Policy](https://cron-job.org/en/privacy/)

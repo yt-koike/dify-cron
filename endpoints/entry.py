@@ -10,7 +10,8 @@ class EntryEndpoint(Endpoint):
         Invokes the endpoint with the given request.
         """
         return Response(
-            '<html><head></head><body>Redirecting to main menu... <meta http-equiv="refresh" content="1;URL=./cron/status"></body></html>',
+            "<html><head></head><body>Redirecting to main menu... "
+            + '<meta http-equiv="refresh" content="1;URL=./cron/status"></body></html>',
             status=200,
             content_type="text/html",
         )
