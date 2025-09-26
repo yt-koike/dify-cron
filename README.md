@@ -25,7 +25,7 @@ Here are the instructions how to use this Cron plugin.
 - App: Workflow or Chatflow to trigger regularly
 - Cron: When this plugin will trigger the workflow. Please see the Cron Format section to make a valid setting.
 - Timezone: Supports identifiers(e.g. Asia/Tokyo) of Python Zoneinfo and PHP TimeZone.
-- Is this cloud version?: Set to True if you use this plugin on https://cloud.dify.ai
+- Server Type: Set if you are using Dify on your own server or on https://cloud.dify.ai
 - API key for cron-job.org: You can get it on https://console.cron-job.org/settings after logging in.
 
 ![alt text](_assets/endpoint.png)
