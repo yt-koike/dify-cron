@@ -269,6 +269,11 @@ class CronEndpoint(Endpoint):
             job_man.start(app_id)
             # print(f"Starting cron for app {app_id} with cron string {cron_str}")
             cron_loop(self.session, job_man, app_id, cron)
+            return Response(
+                START_HTML,
+                status=200,
+                content_type="text/html",
+            )
             # print(f"Stop cron for app {app_id}")
         else:
             return Response("Invalid Command")
